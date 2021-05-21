@@ -2,10 +2,17 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store'
-import GAuth from 'vue3-google-oauth2'
 import { BootstrapIconsPlugin } from 'bootstrap-icons-vue';
-const gAuthOptions = { clientId: '542881808938-lrudio7ssk4pdlvs9bobf68um3u0t80p.apps.googleusercontent.com', 
-                        scope: 'email', 
-                        prompt: 'consent', 
-                        fetch_basic_profile: false }
-createApp(App).use(BootstrapIconsPlugin).use(GAuth, gAuthOptions).use(store).use(router).mount('#app')
+import firebase from "firebase";
+
+var firebaseConfig = {
+    apiKey: "AIzaSyCVtLvbyGPyTFmXOxplACc9JrWgSc8fYmI",
+    authDomain: "scholaread-683c9.firebaseapp.com",
+    projectId: "scholaread-683c9",
+    storageBucket: "scholaread-683c9.appspot.com",
+    messagingSenderId: "298721744156",
+    appId: "1:298721744156:web:684dcbabd1d6be24f6d6d9",
+    measurementId: "G-7W9PEQ9TB0"
+};
+firebase.initializeApp(firebaseConfig);
+createApp(App).use(BootstrapIconsPlugin).use(store).use(router).mount('#app')

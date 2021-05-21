@@ -1,7 +1,7 @@
 <template>
   <div id="nav" class="navbar transparent ">
     <a href="/newsfeed" style="font-size:2vw"><span class="fa fa-book"></span> ReadaholicVN</a>
-    <router-link to="/">Login</router-link>
+    <router-link to="/">{{ this.$store.state.user = null ? 'Login' : 'Logout' }}</router-link>
     <router-link to="/admin">Admin</router-link>
     <router-link to="/newsfeed">Newsfeed</router-link>
     <router-link to="/personal" v-if="this.$store.state.user!=null">Personal</router-link>

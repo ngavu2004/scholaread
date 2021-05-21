@@ -1,22 +1,23 @@
 <template>
-  <Login />
+  <Login2 v-if="!this.$store.state.user" />
 </template>
 
 <script>
 import HelloWorld from "@/components/HelloWorld.vue";
-import Login from "@/components/Login.vue";
+import Login2 from "@/components/Login2.vue";
 import "bootstrap/dist/css/bootstrap.min.css";
-import store from '../store'
+import store from "../store";
 
 export default {
-  name: 'Home',
+  name: "Home",
   components: {
     HelloWorld,
-    Login,
+    Login2,
     store,
   },
-}
+};
 </script>
 
 <style>
+
 </style>

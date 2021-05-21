@@ -36,15 +36,8 @@
       <!-- Remind Passowrd -->
 
       <div id="formFooter">
-        <button @click="handleClickSignInGoogle">Continue with Google</button>
-        <v-facebook-login
-          app-id="295946288876435"
-          @login="onLogin"
-          @logout="onLogout"
-          
-          @sdk-init="sdkLoaded"
-        ></v-facebook-login>
-        
+        <button @click="signIn(google)">Continue with Google</button>
+        <button @click="signIn(facebook)">Continue with Facebook</button>
       </div>
     </div>
   </div>
@@ -54,6 +47,7 @@
 import VFacebookLogin from "vue-facebook-login-component-next";
 import MenuIcon from "vue-material-design-icons/Menu.vue";
 import store from "../store";
+import firebase from "firebase";
 
 export default {
   components: {
@@ -63,60 +57,44 @@ export default {
   store,
   data() {
     return {
-      isConnected: false,
-      name: "",
-      email: "",
-      personalID: "",
-      picture: "",
-      FB: undefined,
+    
     };
   },
   methods: {
-    async handleClickSignInGoogle() {
-      try {
-        const googleUser = await this.$gAuth.signIn();
-        if (!googleUser) {
-          return null;
-        }
-        this.$store.commit("updateUser", googleUser);
-        this.$store.commit('toggleLogin');
-        console.log("googleUser", googleUser);
-        this.user = googleUser.getBasicProfile().getEmail();
-        console.log("getId", this.user);
-        console.log("getBasicProfile", googleUser.getBasicProfile());
-        console.log("getAuthResponse", googleUser.getAuthResponse());
-        console.log(
-          "getAuthResponse",
-          this.$gAuth.instance.currentUser.get().getAuthResponse()
-        );
-      } catch (error) {
-        //on fail do something
-        console.error(error);
-        return null;
+    signIn(social) {
+      let provider = null
+      if (social=='facebook') {
+        provider = new firebase.auth.FacebookAuthProvider();
+      } else {
+        provider = new firebase.auth.GoogleAuthProvider();
       }
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then((result) => {
+          let token = result.credential.accessToken;
+          let user = result.user;
+          console.log("Token: ", token); // Token
+          console.log("Google user", user); // User that was authenticated
+        })
+        .catch((err) => {
+          console.log(err); // This will give you all the information needed to further debug any errors
+        });
     },
-    handleClickSignInFacebook() {
-      this.FB.api("/me", "GET", { fields: "id,name,email,picture" }, (user) => {
-        this.personalID = user.id;
-        this.email = user.email;
-        this.name = user.name;
-        this.picture = user.picture.data.url;
-        console.log('user Information:', user);
-        this.$store.commit("updateUser", user);
-        this.$store.commit('toggleLogin');
-      });
-    },
-    sdkLoaded(payload) {
-      this.isConnected = payload.isConnected;
-      this.FB = payload.FB;
-      if (this.isConnected) this.handleClickSignInFacebook();
-    },
-    onLogin() {
-      this.isConnected = true;
-      this.handleClickSignInFacebook();
-    },
-    onLogout() {
-      this.isConnected = false;
+    facebookSignIn() {
+      let provider = new firebase.auth.FacebookAuthProvider();
+      firebase
+        .auth()
+        .signInWithPopup(provider)
+        .then((result) => {
+          let token = result.credential.accessToken;
+          let user = result.user;
+          console.log("Token: ", token); 
+          console.log("Google user", user); 
+        })
+        .catch((error) => {
+          console.log(error);
+        });
     },
   },
 };
