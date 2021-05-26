@@ -6,13 +6,32 @@
       </div>
       <div class="content-bottom">
         <div class="wthree-field">
-          <button type="submit" class="btn" @click="signIn(google)" style="background-color:#DB4437">
+          <label>Already have an account ?</label>
+          <button
+            type="submit"
+            class="btn"
+            @click="signIn(google)"
+            style="background-color:#DB4437"
+          >
             <span class="fa fa-google"></span>
             Continue with Google
           </button>
-          <button type="submit" class="btn" @click="signIn(facebook)" style="background-color:#3b5998">
+          <button
+            type="submit"
+            class="btn"
+            @click="signIn(facebook)"
+            style="background-color:#3b5998"
+          >
             <span class="fa fa-facebook"></span>
             Continue with Facebook
+          </button>
+          <button
+            type="submit"
+            @click="signOut"
+            class="btn"
+            style="background-color:#3b5998"
+          >
+            Sign out
           </button>
         </div>
       </div>
@@ -26,6 +45,7 @@ import { VFBLoginScope as VFacebookLoginScope } from "vue-facebook-login-compone
 import MenuIcon from "vue-material-design-icons/Menu.vue";
 import store from "../store";
 import firebase from "firebase";
+import { db } from "../firebaseDb.js";
 
 export default {
   components: {
@@ -35,7 +55,12 @@ export default {
   },
   store,
   data() {
-    return {};
+    return {
+      loginState: false,
+      email: "",
+      userName: "", // DisplayName
+      profileImage: "", // photoURL
+    };
   },
   methods: {
     signIn(social) {
@@ -51,16 +76,54 @@ export default {
         .then((result) => {
           let token = result.credential.accessToken;
           let user = result.user;
+          let isNewUser = result.user.isAnonymous;
           console.log("Token: ", token); // Token
-          console.log("user ", social);
+          console.log("Is this new user ?", isNewUser);
           console.log(user); // User that was authenticated
-          this.$store.commit("updateUser", user);
-          this.$router.push("Personal")
+          if (isNewUser) {
+            this.createDocument(user);
+          }
+          this.loginState = true;
+          this.$router.push("Personal");
         })
         .catch((err) => {
           console.log(err); // This will give you all the information needed to further debug any errors
         });
     },
+    signOut() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          console.log("Signed out successfully");
+          this.loginState = false;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    },
+    createDocument(user) {
+      db.collection("user")
+        .add({ email: user.email, userName: user.displayName, profileImage: user.photoURL })
+        .then(() => {
+          console.log("Document successfully written!");
+        })
+        .catch((error) => {
+          console.error("Error writing document: ", error);
+        });
+        
+    },
+  },
+  mounted() {
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        console.log(user);
+        console.log(user.isAnonymous);
+        console.log("User logged in");
+      } else {
+        console.log("User is not logging in");
+      }
+    });
   },
 };
 </script>

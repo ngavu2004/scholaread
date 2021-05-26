@@ -1,5 +1,5 @@
 <template>
-  <Login2 v-if="!this.$store.state.user" />
+  <Login2 />
 </template>
 
 <script>
