@@ -53,6 +53,7 @@ export default {
     VFacebookLogin,
     VFacebookLoginScope,
   },
+  inject: ["global"],
   store,
   data() {
     return {
@@ -64,67 +65,18 @@ export default {
   },
   methods: {
     signIn(social) {
-      let provider = null;
-      if (social == "facebook") {
-        provider = new firebase.auth.FacebookAuthProvider();
-      } else {
-        provider = new firebase.auth.GoogleAuthProvider();
-      }
-      firebase
-        .auth()
-        .signInWithPopup(provider)
-        .then((result) => {
-          let token = result.credential.accessToken;
-          let user = result.user;
-          let isNewUser = result.user.isAnonymous;
-          console.log("Token: ", token); // Token
-          console.log("Is this new user ?", isNewUser);
-          console.log(user); // User that was authenticated
-          if (isNewUser) {
-            this.createDocument(user);
-          }
-          this.loginState = true;
-          this.$router.push("Personal");
-        })
-        .catch((err) => {
-          console.log(err); // This will give you all the information needed to further debug any errors
-        });
+      this.global.signIn(social)
     },
     signOut() {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          console.log("Signed out successfully");
-          this.loginState = false;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+      this.global.signOut()
     },
     createDocument(user) {
-      db.collection("user")
-        .add({ email: user.email, userName: user.displayName, profileImage: user.photoURL })
-        .then(() => {
-          console.log("Document successfully written!");
-        })
-        .catch((error) => {
-          console.error("Error writing document: ", error);
-        });
-        
-    },
+      this.global.addUser(user)
+    }
   },
   mounted() {
-    firebase.auth().onAuthStateChanged(function(user) {
-      if (user) {
-        console.log(user);
-        console.log(user.isAnonymous);
-        console.log("User logged in");
-      } else {
-        console.log("User is not logging in");
-      }
-    });
-  },
+    this.global.checkSigninState()
+  }
 };
 </script>
 

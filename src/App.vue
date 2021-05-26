@@ -6,16 +6,18 @@
     <router-link to="/" >Login</router-link>
     <router-link to="/admin">Admin</router-link>
     <router-link to="/newsfeed">Newsfeed</router-link>
-    <router-link to="/personal" v-if="this.$store.state.user != null"
-      >Personal</router-link
-    >
+    <router-link to="/personal" >Personal</router-link>
   </div>
   <router-view />
 </template>
 
 <script>
 import firebase from "firebase";
+import global from "./global"
 export default {
+  provide: {
+    global
+  },
   data() {
     return {
       loginState: false
